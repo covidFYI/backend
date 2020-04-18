@@ -9,7 +9,7 @@ import json
 CACHE_TIMEOUT = 60*1 # 1 min
 
 @data_bp.route('/api/v1/states')
-@cache.cached(timeout=CACHE_TIMEOUT, key_prefix='all_states')
+@cache.cached(timeout=CACHE_TIMEOUT, key_prefix='states')
 def states():
 
     states = Entries.objects.distinct('state')
@@ -32,9 +32,7 @@ def state_w_category(state, category):
 
     entries = tuple(Entries.objects(state=state, category=category))
 
-    return Response(json.dumps({
-        'entries': entries,
-    }), mimetype='application/json')
+    return jsonify({'entries' : entries})
 
 @data_bp.route('/api/v1/stats')
 @cache.cached(timeout=CACHE_TIMEOUT, key_prefix='stats')
@@ -46,5 +44,5 @@ def stat():
     }
     
     return Response(json.dumps({
-        'entries': entries,
+        'stats': stats,
     }), mimetype='application/json')
