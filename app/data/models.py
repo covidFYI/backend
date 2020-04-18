@@ -1,4 +1,4 @@
-from extensions import db
+from app.extensions import db
 
 class Entries(db.Document):
     id = db.StringField(required=True, primary_key=True)
@@ -16,5 +16,3 @@ class Entries(db.Document):
     sourceURL = db.StringField()
     source = db.StringField()
     description = db.StringField()
-
-

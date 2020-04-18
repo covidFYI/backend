@@ -8,3 +8,7 @@ class Config(object):
         'host': '127.0.0.1',
         'port': 27017
     }
+
+    CACHE_CONFIG = {
+        'CACHE_TYPE' : 'redis'
+    }
