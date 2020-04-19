@@ -1,0 +1,49 @@
+version: '3'
+
+volumes:
+  mongodb_data:
+
+services:
+
+  mongodb: 
+    image: dannyben/alpine-mongo
+    container_name: mongodb
+
+    volumes:
+      - "mongodb_data:/data/db"
+
+  web:
+    environment:
+      MONGODB_NAME: "covidfyi"
+      MONGODB_HOST: "mongodb"
+      MONGODB_PORT: "27017"
+      REDIS_HOST: "redis"
+
+    image: "flask_mongo_tejas"
+    container_name: web
+    build: .
+    command: bash -c "flask add-data && gunicorn --bind 0.0.0.0:5000 --access-logfile - wsgi:app -w 9 --threads 12"
+    links:
+      - redis
+    depends_on:
+      - redis
+      - mongodb
+    # ports: 
+    #   - '5000:5000'
+
+  redis:
+    image : "redis:5.0.8-alpine"
+    container_name: "redis"
+    
+    depends_on:
+      - mongodb
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+    depends_on:
+      - web

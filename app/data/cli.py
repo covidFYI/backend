@@ -9,6 +9,7 @@ def add_data():
 
     # Why add if already added? :D
     if Entries.objects.count() > 0:
+        print("MongoDB already populated!")
         return
 
     with open(os.path.join('test_data_csv', 'Doctors.csv')) as f:
