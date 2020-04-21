@@ -1,47 +1,16 @@
-from flask import Flask, jsonify
-from extensions import db
-import click
-from models import Entries
-import os
+from app.data import data_bp
+from app.data.models import Entries
 import csv
+import os
 
-app = Flask(__name__)
-app.config.from_object('config.Config')
-
-db.init_app(app)
-
-""" Routes """
-@app.route('/api/states')
-def states():
-    st = tuple(Entries.objects.distinct('state'))
-    return jsonify({
-        'states': st
-    })
-
-@app.route('/api/state/<state>')
-def state(state):
-    e = tuple(Entries.objects(state=state))
-    return jsonify({
-            'entries': e
-        })
-
-@app.route('/api/state/<state>/<category>')
-def state_w_category(state, category):
-    e = tuple(Entries.objects(state=state, category=category))
-    return jsonify({
-            'entries': e
-        })
-
-@app.route('/api/stat')
-def stat():
-    categories = tuple(Entries.objects.distinct('category'))
-    stats = { c: Entries.objects(category=c).count() for c in categories}
-    return jsonify(stats)
-
-
-""" Flask CLI Commands """
-@app.cli.command('add-data')
+""" Flask CLI Commands (DATA) """
+@data_bp.cli.command('add-data')
 def add_data():
+
+    # Why add if already added? :D
+    if Entries.objects.count() > 0:
+        return
+
     with open(os.path.join('test_data_csv', 'Doctors.csv')) as f:
         print('Adding doctors...')
         reader = csv.reader(f)
@@ -93,9 +62,7 @@ def add_data():
             Entries(id=s[0],category=s[1], state=s[2], area=s[3], subCategory=s[4],name=s[5], pointOfContact=s[6], email_1=s[7],email_2=s[8], phone_1=s[9],  phone_2=s[10], address=s[11],sourceURL=s[12], source=s[13]).save()
         print('Labs added!')
 
-@app.cli.command('delete-all')
+@data_bp.cli.command('delete-all')
 def delete_all():
-    Entries.objects().delete()
 
-if __name__ == '__main__':
-    app.run(debug=True,port=5000)
+    Entries.objects().delete()
