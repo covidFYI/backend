@@ -1,7 +1,7 @@
 from app.config import Config
 from flask import Flask, jsonify, make_response
 from flask_cors import CORS
-from app.extensions import db, cache
+from app.extensions import cache, mongo
 
 def register_errorhandlers(app):
     """Register error handlers."""
@@ -29,7 +29,9 @@ def create_app(config_class=Config):
     CORS(app)
     app.secret_key = ".*nobodysguessingthis__"
     app.config.from_object(config_class)
-    db.init_app(app)
+    
+    mongo.init_app(app, Config.MONGO_URI)
+
     cache.init_app(app, config=Config.CACHE_CONFIG)
 
     from app.data import data_bp
