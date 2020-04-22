@@ -1,6 +1,5 @@
-from flask_mongoengine import MongoEngine 
-from flask_pymongo import PyMongo
 from flask_caching import Cache
+from flask_pymongo import PyMongo
 
 
 mongo = PyMongo()
