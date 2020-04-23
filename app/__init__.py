@@ -1,7 +1,7 @@
 from app.config import Config
 from flask import Flask, jsonify, make_response
 from flask_cors import CORS
-from app.extensions import cache, mongo
+from app.extensions import cache, mongo, scheduler
 
 def register_errorhandlers(app):
     """Register error handlers."""
@@ -33,6 +33,9 @@ def create_app(config_class=Config):
     mongo.init_app(app, Config.MONGO_URI)
 
     cache.init_app(app, config=Config.CACHE_CONFIG)
+
+    scheduler.init_app(app)
+    scheduler.start()
 
     from app.data import data_bp
     app.register_blueprint(data_bp, cli_group=None)

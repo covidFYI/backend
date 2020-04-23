@@ -1,6 +1,7 @@
 from flask_caching import Cache
 from flask_pymongo import PyMongo
+from flask_apscheduler import APScheduler
 
-
-mongo = PyMongo()
-cache = Cache(config={'CACHE_TYPE': 'redis'})
+scheduler = APScheduler()
+mongo     = PyMongo()
+cache     = Cache(config={'CACHE_TYPE': 'redis'})
