@@ -19,6 +19,16 @@ def states():
         'result': entries
     })
 
+
+@data_bp.route('/api/v1/categories')
+@cache.cached(timeout=CACHE_TIMEOUT, key_prefix='categories')
+def infotypes():
+    entries = entries_collection.find({}, {'category': 1}).distinct('category')
+    entries = tuple(entries)
+    return jsonify({
+        'result': entries
+    })
+
 @data_bp.route('/api/v1/state/<string:state>')
 @cache.memoize(timeout=CACHE_TIMEOUT)
 def state_view(state):
