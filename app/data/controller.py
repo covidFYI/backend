@@ -52,17 +52,17 @@ def infotypes_total():
 
 
 @data_bp.route('/api/v1/categories/<category>/total')
-@cache.cached(timeout=CACHE_TIMEOUT, key_prefix='total_categories')
+@cache.cached(timeout=CACHE_TIMEOUT, key_prefix='total_categories_state')
 def infotypes_total_state(category):
-    """ pipeline = [{"$match" : { "$category" : category} },
-                {"$group": {"_id": "$category", "total": {"$sum": 1}}}]
+    pipeline = [{"$match" : { "category" : category} },
+                {"$group": {"_id": "$state", "total": {"$sum": 1}}}]
     total = entries_collection.aggregate(pipeline)
     print(category)
     res = tuple({'category': x['_id'], 'total': x['total']} for x in total)
     return jsonify({
         'result': res
-    }) """
-    return 'implement this.'
+    }) 
+    
 
 @data_bp.route('/api/v1/state/<string:state>')
 @cache.memoize(timeout=CACHE_TIMEOUT)
