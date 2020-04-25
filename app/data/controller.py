@@ -58,8 +58,9 @@ def infotypes_total_state(category):
                 {"$group": {"_id": "$state", "total": {"$sum": 1}}}]
     total = entries_collection.aggregate(pipeline)
     print(category)
-    res = tuple({'category': x['_id'], 'total': x['total']} for x in total)
+    res = tuple({'state': x['_id'], 'total': x['total']} for x in total)
     return jsonify({
+        'category': category,
         'result': res
     }) 
     
