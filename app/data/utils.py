@@ -1,6 +1,5 @@
 
 from app.extensions import mongo
-from dotenv import load_dotenv
 from requests import get
 from json import loads
 from json.decoder import JSONDecodeError  
@@ -10,8 +9,7 @@ import time #TODO: remove in prod
 import math #TODO: remove in prod
 
 def extract_data():
-    #sheet_id = '10q6rF4JuSz-gPq82MNWfzz7Bm_zOnZDFUtx9XM63f9I' #Test sheet id.
-    load_dotenv()
+    
     SHEET_ID = os.getenv('G_SHEET_ID', None)
 
     if SHEET_ID is None:
@@ -168,32 +166,42 @@ def scrape_news():
     res.extend(scrape_ani())
     res.extend(scrape_ABP())
     res.extend(scrape_NN())
+    print('News scraped')
 
     return res
 
 def extract_and_import_db():
+
     s = time.time() # to measure how long this takes.
-    entries = extract_data() # gets all the entries from Google Sheet
-    print("Deleting entries before adding ...")
-    delete_entries_db() # delete existing entries
+
+    entries = extract_data() # get data from Google Sheet
+    delete_data_db() # Delete existing data
     entries_collection = mongo.db.entries
     entries_collection.insert_many(entries)
+    print("Data added!")
+
     news = scrape_news()
-    print('news scraped')
+    delete_news_db() # Delete existing news
     news_collection = mongo.db.news
-    print('collection found')
-    
     news_collection.insert_many(news)
-    print('news added.')
+    print('News added!')
+
     end = time.time()
-    print("Entries added!")
     print(f'Time taken {math.floor((end-s))}secs') # remove this in prod.
 
-def delete_entries_db():
-    entries = mongo.db.entries
+def delete_data_db():
+
+    print("Deleting data before adding ...")
+
+    data = mongo.db.entries
+    data.delete_many({})
+
+def delete_news_db():
+
+    print("Deleting news before adding..")
+
     news = mongo.db.news
     news.delete_many({})
-    entries.delete_many({})
 
 if __name__ == '__main__':
     s = time.time()

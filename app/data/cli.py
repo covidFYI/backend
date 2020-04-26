@@ -1,7 +1,7 @@
 from app.data import data_bp
 import csv
 import os
-from app.data.utils import extract_and_import_db, delete_entries_db
+from app.data.utils import extract_and_import_db, delete_data_db, delete_news_db
 
 
 """ Flask CLI Commands (DATA) """
@@ -12,4 +12,6 @@ def add_data():
 
 @data_bp.cli.command('delete-all')
 def delete_all():
-    delete_entries_db()
+    delete_data_db()
+    delete_news_db()
+

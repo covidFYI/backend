@@ -2,6 +2,7 @@ from app.config import Config
 from flask import Flask, jsonify, make_response
 from flask_cors import CORS
 from app.extensions import cache, mongo, scheduler
+from dotenv import load_dotenv
 
 def register_errorhandlers(app):
     """Register error handlers."""
@@ -25,6 +26,8 @@ def register_errorhandlers(app):
 
 def create_app(config_class=Config):
     
+    load_dotenv() # Load all env variables for the app
+
     app   = Flask(__name__)
     CORS(app)
     app.secret_key = ".*nobodysguessingthis__"

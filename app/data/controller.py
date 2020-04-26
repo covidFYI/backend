@@ -5,10 +5,10 @@ from flask import jsonify, request, make_response, abort, Response
 from flask_caching import Cache
 import json
 from random import shuffle
-CACHE_TIMEOUT = 1*1 # 10 min
+CACHE_TIMEOUT = 60*10 # 10 min
 
+news_collection    = mongo.db.news
 entries_collection = mongo.db.entries
-news_collection = mongo.db.news
     
 @data_bp.route('/api/v1/states')
 @cache.cached(timeout=CACHE_TIMEOUT, key_prefix='states')
@@ -16,6 +16,7 @@ def states():
 
     entries = entries_collection.find({}, {'state':1}).distinct('state')
     entries = tuple(entries)
+
     return jsonify({
         'result': entries
     })
@@ -26,15 +27,18 @@ def states():
 def news():
     news = news_collection.find({}, {'_id': 0})
     news = tuple(news)
+
     return jsonify({
         'result': news 
     })
 
 @data_bp.route('/api/v1/categories')
 @cache.cached(timeout=CACHE_TIMEOUT, key_prefix='categories')
-def infotypes():
+def categories():
+
     entries = entries_collection.find({}, {'category': 1}).distinct('category')
     entries = tuple(entries)
+
     return jsonify({
         'result': entries
     })
@@ -45,23 +49,26 @@ def infotypes_total():
     pipeline = [{"$group": {"_id": "$category", "total": {"$sum": 1}}}]
     total = entries_collection.aggregate(pipeline) 
 
-    res = tuple({'category':x['_id'], 'total': x['total']} for x in total)
+    result = tuple({'category':x['_id'], 'total': x['total']} for x in total)
+    
     return jsonify({
-        'result': res
+        'result': result
     })
 
 
 @data_bp.route('/api/v1/categories/<category>/total')
 @cache.cached(timeout=CACHE_TIMEOUT, key_prefix='total_categories_state')
-def infotypes_total_state(category):
+def categories_total_state(category):
+
     pipeline = [{"$match" : { "category" : category} },
                 {"$group": {"_id": "$state", "total": {"$sum": 1}}}]
     total = entries_collection.aggregate(pipeline)
-    print(category)
-    res = tuple({'state': x['_id'], 'total': x['total']} for x in total)
+
+    result = tuple({'state': x['_id'], 'total': x['total']} for x in total)
+
     return jsonify({
         'category': category,
-        'result': res
+        'result'  : result
     }) 
     
 
@@ -83,5 +90,3 @@ def state_w_category(state, category):
     return jsonify({
         'result': entries
     })
-
-

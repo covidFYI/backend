@@ -4,4 +4,4 @@ from flask_apscheduler import APScheduler
 
 scheduler = APScheduler()
 mongo     = PyMongo()
-cache     = Cache(config={'CACHE_TYPE': 'redis'})
+cache     = Cache()
