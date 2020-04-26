@@ -5,6 +5,7 @@ from flask import jsonify, request, make_response, abort, Response
 from flask_caching import Cache
 import json
 from random import shuffle
+
 CACHE_TIMEOUT = 60*10 # 10 min
 
 news_collection    = mongo.db.news
@@ -18,9 +19,8 @@ def states():
     entries = tuple(entries)
 
     return jsonify({
-        'result': entries
+        'results': entries
     })
-
 
 @data_bp.route('/api/v1/news')
 @cache.cached(timeout=CACHE_TIMEOUT, key_prefix='news')
@@ -29,7 +29,7 @@ def news():
     news = tuple(news)
 
     return jsonify({
-        'result': news 
+        'results': news 
     })
 
 @data_bp.route('/api/v1/categories')
@@ -40,21 +40,21 @@ def categories():
     entries = tuple(entries)
 
     return jsonify({
-        'result': entries
+        'results': entries
     })
 
 @data_bp.route('/api/v1/categories/total')
 @cache.cached(timeout=CACHE_TIMEOUT, key_prefix='total_categories')
-def infotypes_total():
+def categories_total():
+
     pipeline = [{"$group": {"_id": "$category", "total": {"$sum": 1}}}]
     total = entries_collection.aggregate(pipeline) 
 
     result = tuple({'category':x['_id'], 'total': x['total']} for x in total)
     
     return jsonify({
-        'result': result
+        'results': result
     })
-
 
 @data_bp.route('/api/v1/categories/<category>/total')
 @cache.cached(timeout=CACHE_TIMEOUT, key_prefix='total_categories_state')
@@ -68,17 +68,17 @@ def categories_total_state(category):
 
     return jsonify({
         'category': category,
-        'result'  : result
+        'results'  : result
     }) 
     
-
 @data_bp.route('/api/v1/state/<string:state>')
 @cache.memoize(timeout=CACHE_TIMEOUT)
 def state_view(state):
 
-    entries = entries_collection.find({'state': state}, {'_id':0})
+    entries = tuple(entries_collection.find({'state': state}, {'_id':0}))
+
     return jsonify({
-        'result': entries
+        'results': entries
     })
 
 @data_bp.route('/api/v1/state/<string:state>/<string:category>')
@@ -87,6 +87,7 @@ def state_w_category(state, category):
 
     entries = entries_collection.find({'state':state, 'category':category}, {'_id':0})
     entries = tuple(entries)
+
     return jsonify({
-        'result': entries
+        'results': entries
     })

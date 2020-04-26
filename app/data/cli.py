@@ -14,4 +14,3 @@ def add_data():
 def delete_all():
     delete_data_db()
     delete_news_db()
-
