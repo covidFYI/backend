@@ -8,6 +8,24 @@ import os
 import time #TODO: remove in prod
 import math #TODO: remove in prod
 
+def get_location_geolocation(lat, lon):
+
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36"
+    }
+    req = get(f'http://www.geoplugin.net/extras/location.gp?lat={lat}&lon={lon}&format=json', headers=headers)
+
+    if req.status_code != 200:
+        raise Exception("Could not access location service")
+        return
+
+    try:
+        data = req.json()
+    except JSONDecodeError:
+        data = req.text
+
+    return data
+    
 def extract_data():
     
     SHEET_ID = os.getenv('G_SHEET_ID', None)

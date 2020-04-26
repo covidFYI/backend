@@ -1,5 +1,6 @@
 from app import cache
 from app.data import data_bp
+from app.data.utils import get_location_geolocation
 from app.extensions import cache, mongo
 from flask import jsonify, request, make_response, abort, Response
 from flask_caching import Cache
@@ -124,3 +125,20 @@ def covid_stats():
 
     return jsonify(stats)
 
+""" Location fetch API """
+
+@data_bp.route('/v1/locate')
+def locate():
+
+    lat = request.args.get("lat", None)
+    lon = request.args.get("lon", None)
+
+    if lat is None or lon is None:
+        abort(400, 'Co-ordinates not provided')
+
+    try:
+        response = get_location_geolocation(lat, lon)
+    except Exception as e:
+        abort(500, str(e))
+
+    return response
