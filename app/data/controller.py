@@ -14,7 +14,7 @@ entries_collection = mongo.db.entries
 
 """ CovidFYI Data APIs """
 
-@data_bp.route('/api/v1/states')
+@data_bp.route('/v1/states')
 @cache.cached(timeout=CACHE_TIMEOUT, key_prefix='states')
 def states():
 
@@ -25,7 +25,7 @@ def states():
         'results': entries
     })
 
-@data_bp.route('/api/v1/categories')
+@data_bp.route('/v1/categories')
 @cache.cached(timeout=CACHE_TIMEOUT, key_prefix='categories')
 def categories():
 
@@ -36,7 +36,7 @@ def categories():
         'results': entries
     })
 
-@data_bp.route('/api/v1/state/<string:state>')
+@data_bp.route('/v1/state/<string:state>')
 @cache.memoize(timeout=CACHE_TIMEOUT)
 def state_view(state):
 
@@ -46,7 +46,7 @@ def state_view(state):
         'results': entries
     })
 
-@data_bp.route('/api/v1/state/<string:state>/<string:category>')
+@data_bp.route('/v1/state/<string:state>/<string:category>')
 @cache.memoize(timeout=CACHE_TIMEOUT)
 def state_w_category(state, category):
 
@@ -60,7 +60,7 @@ def state_w_category(state, category):
 
 """ CovidFYI Data stats """
 
-@data_bp.route('/api/v1/categories/total')
+@data_bp.route('/v1/categories/total')
 @cache.cached(timeout=CACHE_TIMEOUT, key_prefix='total_categories')
 def categories_total():
 
@@ -73,7 +73,7 @@ def categories_total():
         'results': result
     })
 
-@data_bp.route('/api/v1/categories/<category>/total')
+@data_bp.route('/v1/categories/<category>/total')
 @cache.memoize(timeout=CACHE_TIMEOUT)
 def categories_total_state(category):
 
@@ -91,7 +91,7 @@ def categories_total_state(category):
 
 """ Covid news """
 
-@data_bp.route('/api/v1/news')
+@data_bp.route('/v1/news')
 @cache.cached(timeout=CACHE_TIMEOUT, key_prefix='news')
 def news():
     
@@ -105,7 +105,7 @@ def news():
 
 """ India Covid stats """
 
-@data_bp.route('/api/v1/covid_stats')
+@data_bp.route('/v1/covid_stats')
 @cache.cached(timeout=CACHE_TIMEOUT, key_prefix='stats')
 def covid_stats():
 
