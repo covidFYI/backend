@@ -1,5 +1,7 @@
 
 from app.extensions import mongo
+from app import celery
+from collections import defaultdict
 from requests import get
 from json import loads
 from json.decoder import JSONDecodeError  
@@ -134,7 +136,7 @@ def scrape_NN():
     resp = get('https://www.newsnation.in/topic/coronavirus-news', headers=headers)
     soup = BeautifulSoup(resp.text, 'html.parser')
     news = soup.findAll('div', {'class': 'col-xs-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-2'})
-    # col-xs-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 mt-2
+
     for article in news:
         article_container = article.findChild('a')
         relative_link = article_container['href']
@@ -188,6 +190,7 @@ def scrape_news():
 
     return res
 
+@celery.task(name='update_db_12hrs')
 def extract_and_import_db():
 
     s = time.time() # to measure how long this takes.
@@ -207,6 +210,8 @@ def extract_and_import_db():
     end = time.time()
     print(f'Time taken {math.floor((end-s))}secs') # remove this in prod.
 
+    source_link_validate() # Check and tag all entries
+
 def delete_data_db():
 
     print("Deleting data before adding ...")
@@ -220,6 +225,38 @@ def delete_news_db():
 
     news = mongo.db.news
     news.delete_many({})
+
+def source_link_validate():
+    """Check if source_link is valid.
+    If not, update field `source_link_valid` to `False` """
+
+    data = mongo.db.entries # Get all entries
+
+    source_links = defaultdict(bool)
+    for entry in data.find():
+
+        # Check if entry has a valid source link
+        source_link = entry['sourceurl']
+        if source_link in source_links:
+            source_link_valid = source_links[source_link] # existing source link
+        else:
+            source_link_valid = False # new source link
+            try:
+                req = get(source_link, verify=False, timeout=5)
+                if req.status_code == 200:
+                    source_link_valid = True
+                else:
+                    print(f"{source_link} is not 200\n")
+            except Exception as e:
+                print(str(e))
+                print(f"can't reach {source_link}\n")
+                pass
+
+            source_links[source_link] = source_link_valid
+
+        # Update the entry 
+        entry['source_link_valid'] = source_link_valid 
+        data.save(entry)
 
 if __name__ == '__main__':
     s = time.time()
