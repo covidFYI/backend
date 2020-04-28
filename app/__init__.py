@@ -4,7 +4,7 @@ from celery.schedules import crontab
 from datetime import timedelta
 from flask import Flask, jsonify, make_response
 from flask_cors import CORS
-from app.extensions import cache, mongo, scheduler
+from app.extensions import cache, mongo
 from dotenv import load_dotenv
 
 celery = Celery(__name__, broker=Config.CELERY_BROKER_URL)
@@ -21,8 +21,8 @@ def register_errorhandlers(app):
         error_message     = getattr(error, 'description', '')
         return make_response(jsonify(
             {
-                'error'  :error_code,
-                'message':error_message
+                'error'   : error_code,
+                'message' : error_message
             }), error_code
         )
 
@@ -35,22 +35,18 @@ def create_app(config_class=Config):
     app = Flask(__name__)
 
     # Add celery config
-    app.config['CELERY_BROKER_URL'] = Config.CELERY_BROKER_URL
+    app.config['CELERY_BROKER_URL']     = Config.CELERY_BROKER_URL
     app.config['CELERY_RESULT_BACKEND'] = Config.CELERY_RESULT_BACKEND
-    app.config['CELERYBEAT_SCHEDULE'] = Config.CELERY_BEAT_TASKS
+    app.config['CELERYBEAT_SCHEDULE']   = Config.CELERY_BEAT_TASKS
 
     CORS(app)
     app.secret_key = ".*nobodysguessingthis__"
     app.config.from_object(config_class)
     
     mongo.init_app(app, Config.MONGO_URI)
+    celery.conf.update(app.config)                  #Update with celery config
+    cache.init_app(app, config=Config.CACHE_CONFIG) #Init redis cache
 
-    celery.conf.update(app.config)
-
-    cache.init_app(app, config=Config.CACHE_CONFIG)
-
-    scheduler.init_app(app)
-    scheduler.start()
 
     from app.data import data_bp
     app.register_blueprint(data_bp, cli_group=None)
