@@ -8,7 +8,8 @@ from requests import get
 import json
 from random import shuffle
 
-CACHE_TIMEOUT = 60*10 # 10 min
+#CACHE_TIMEOUT = 60*10 # 10 min
+CACHE_TIMEOUT = 1
 
 news_collection    = mongo.db.news
 entries_collection = mongo.db.entries
@@ -124,6 +125,22 @@ def covid_stats():
         {'Deaths': recent_data['totaldeceased']}]
 
     return jsonify(stats)
+
+@data_bp.route('/v1/covid_stats/history')
+#@cache.cached(timeout=CACHE_TIMEOUT, key_prefix='stats_history')
+def covid_stats_history():
+
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36"
+    }
+
+    resp = get('https://api.covid19india.org/data.json', headers=headers)
+
+    json_data = resp.json()
+    recent_data = json_data['cases_time_series'][-15:]
+    resp = map(lambda x: { 'date': x['date'].strip() ,'Confirmed': x['totalconfirmed'], 'Recovered': x['totalrecovered'], 'Deaths': x['totaldeceased']}, recent_data)
+    return jsonify(tuple(resp))
+
 
 """ Location fetch API """
 
