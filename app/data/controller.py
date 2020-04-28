@@ -8,8 +8,8 @@ from requests import get
 import json
 from random import shuffle
 
-#CACHE_TIMEOUT = 60*10 # 10 min
-CACHE_TIMEOUT = 1
+CACHE_TIMEOUT = 60*10 # 10 min
+
 
 news_collection    = mongo.db.news
 entries_collection = mongo.db.entries
@@ -127,7 +127,7 @@ def covid_stats():
     return jsonify(stats)
 
 @data_bp.route('/v1/covid_stats/history')
-#@cache.cached(timeout=CACHE_TIMEOUT, key_prefix='stats_history')
+@cache.cached(timeout=CACHE_TIMEOUT, key_prefix='stats_history')
 def covid_stats_history():
 
     headers = {
