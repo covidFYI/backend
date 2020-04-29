@@ -1,5 +1,5 @@
-from flask_mongoengine import MongoEngine 
 from flask_caching import Cache
+from flask_pymongo import PyMongo
 
-db = MongoEngine()
-cache = Cache(config={'CACHE_TYPE': 'redis'})
+mongo     = PyMongo()
+cache     = Cache()
