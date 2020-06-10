@@ -40,7 +40,7 @@ def extract_data():
     tab_num = 1 # tabs represent categories.
     
     # By default in Google sheet, we don't want to include them.
-    exclude = {'Access', 'Not Used', 'Formula'} 
+    exclude = {'Access', 'Not Used', 'Formula', 'Instructions', 'Pivot Table 4'} 
     
     # `all_entries` will be populatd below.
     all_entries = []
